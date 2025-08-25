@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;400;700;900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Amigo Secreto</title>
+</head>
+
+<body>
+    <main class="main-content">
+        <header class="header-banner">
+            <h1 class="main-title">Amigo Secreto</h1>
+            <img src="assets/amigo-secreto.png" alt="Imagen representativa de amigo secreto">
+        </header>
+        
+         <section class="input-section">
+            <h2 class="section-title">Digite el nombre de sus amigos</h2>
+            <div class="input-wrapper">
+                <input type="text" id="amigo" class="input-name" placeholder="Escribe un nombre">
+                <button class="button-add" onclick="agregarAmigo()">Añadir</button>
+            </div>
+
+            </div>
+            
+            <!-- Mensajes de la aplicación -->
+            <div id="message-box" class="message-box bg-red-100 text-red-700"></div>
+
+            <!-- Lista de amigos agregados -->
+            <div class="mt-6 text-left">
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">Amigos en la lista:</h3>
+                <ul id="listaAmigos" class="name-list bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <!-- Los nombres aparecerán aquí -->
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Sección de sorteo -->
+        <section>
+           
+                <div class="button-container">
+                <button class="button-draw" onclick="sortearAmigo()" aria-label="Sortear amigo secreto">
+                    <img src="assets/play_circle_outline.png" alt="Ícono para sortear">
+                    Sortear amigo
+                </button>
+            </div>
+
+                
+                
+                
+                </button>
+                <div class="button-container">
+                <button class="button-draw"
+                    onclick="limpiarAmigos()">
+                    <img src="assets/play_circle_outline.png" alt="Ícono para limpiar" class="inline-block mr-2">
+                    Limpiar
+                </button>
+            </div>
+            
+            <!-- Resultado del sorteo -->
+            <div class="mt-8 text-left">
+                <h3 class="text-2xl font-bold text-gray-700 mb-4">Resultado del Sorteo:</h3>
+                <ul id="resultado" class="result-list text-gray-700 text-lg space-y-2">
+                    <!-- Los resultados aparecerán aquí -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Array para almacenar los nombres de los amigos
+        let amigos = [];
+
+        /**
+         * Muestra un mensaje en el cuadro de mensajes.
+         * @param {string} message El mensaje a mostrar.
+         * @param {string} type El tipo de mensaje ('error' o 'success').
+         */
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+            
+            if (type === 'error') {
+                messageBox.classList.remove('bg-green-100', 'text-green-700');
+                messageBox.classList.add('bg-red-100', 'text-red-700');
+            } else {
+                messageBox.classList.remove('bg-red-100', 'text-red-700');
+                messageBox.classList.add('bg-green-100', 'text-green-700');
+            }
+        }
+
+        /**
+         * Oculta el cuadro de mensajes.
+         */
+        function hideMessage() {
+            document.getElementById('message-box').style.display = 'none';
+        }
+
+        /**
+         * Agrega un amigo a la lista y actualiza la interfaz de usuario.
+         */
+        function agregarAmigo() {
+            hideMessage();
+            const amigoInput = document.getElementById('amigo');
+            const amigoNombre = amigoInput.value.trim();
+
+            if (amigoNombre === '') {
+                showMessage('Por favor, ingresa un nombre válido.', 'error');
+                return;
+            }
+
+            if (amigos.includes(amigoNombre)) {
+                showMessage('Este nombre ya ha sido agregado.', 'error');
+                return;
+            }
+
+            amigos.push(amigoNombre);
+            actualizarListaAmigos();
+            amigoInput.value = '';
+            amigoInput.focus();
+        }
+
+        /**
+         * Actualiza la lista de amigos en la interfaz de usuario.
+         */
+        function actualizarListaAmigos() {
+            const listaAmigos = document.getElementById('listaAmigos');
+            listaAmigos.innerHTML = '';
+            
+            if (amigos.length === 0) {
+                listaAmigos.innerHTML = '<li class="text-center italic text-gray-400">La lista está vacía.</li>';
+            } else {
+                amigos.forEach(amigo => {
+                    const li = document.createElement('li');
+                    li.textContent = amigo;
+                    li.className = "p-2 my-1 rounded-md bg-white border border-gray-300 shadow-sm";
+                    listaAmigos.appendChild(li);
+                });
+            }
+        }
+
+        /**
+         * Realiza el sorteo de amigo secreto.
+         */
+        function sortearAmigo() {
+            hideMessage();
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = '';
+
+            if (amigos.length < 2) {
+                showMessage('Debes tener al menos 2 amigos para realizar el sorteo.', 'error');
+                return;
+            }
+
+            const amigosAleatorios = [...amigos];
+            shuffleArray(amigosAleatorios);
+
+            for (let i = 0; i < amigos.length; i++) {
+                const amigoActual = amigos[i];
+                const amigoSecreto = amigosAleatorios[(i + 1) % amigos.length];
+                
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="font-semibold text-purple-600">${amigoActual}</span> le regala a <span class="font-semibold text-purple-600">${amigoSecreto}</span>`;
+                resultado.appendChild(li);
+            }
+            showMessage('¡Sorteo realizado con éxito!', 'success');
+        }
+        
+        /**
+         * Limpia todos los datos de la lista de amigos y el resultado.
+         */
+        function limpiarAmigos() {
+            amigos = [];
+            actualizarListaAmigos();
+            document.getElementById('resultado').innerHTML = '';
+            hideMessage();
+            showMessage('La lista de amigos ha sido limpiada.', 'success');
+        }
+
+        /**
+         * Algoritmo de Fisher-Yates para mezclar un array de forma aleatoria.
+         * @param {Array} array El array a mezclar.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Inicializar la lista al cargar la página
+        window.onload = actualizarListaAmigos;
+    </script>
+</body>
+</html>
